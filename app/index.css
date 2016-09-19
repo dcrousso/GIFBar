@@ -1,0 +1,133 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+:root {
+	--main-offset: 12px;
+	--main-height: calc(100vh - var(--main-offset));
+	--main-radius: 5px;
+}
+
+body {
+	font: 14px BlinkMacSystemFont;
+}
+
+body::before {
+	position: fixed;
+	top: 0;
+	right: calc(50% - var(--main-offset) - 0.5px);
+	left: calc(50% - var(--main-offset) - 0.5px);
+	z-index: 20;
+	content: "";
+	border-left: var(--main-offset) solid transparent;
+	border-right: var(--main-offset) solid transparent;
+	border-bottom: var(--main-offset) solid hsl(0, 0%, 92.5%);
+}
+
+main {
+	position: absolute;
+	top: var(--main-offset);
+	right: 0;
+	left: 0;
+	width: 100vw;
+	height: var(--main-height);
+	background-color: white;
+	border-top-right-radius: var(--main-radius);
+	border-top-left-radius: var(--main-radius);
+	overflow: hidden;
+}
+
+.string-copy-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.attribution {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	z-index: 10;
+	width: 75px;
+	pointer-events: none;
+}
+
+.copy {
+	background-image: url(../assets/copy.svg);
+}
+
+.open {
+	background-image: url(../assets/open.svg);
+}
+
+.search {
+	position: fixed;
+	top: var(--main-offset);
+	z-index: 10;
+	width: 100vw;
+	padding: 0.25em 0.5em 0.3em;
+	font-size: inherit;
+	background-color: white;
+	border: none;
+	border-top-right-radius: var(--main-radius);
+	border-top-left-radius: var(--main-radius);
+	box-shadow: 0 2px 2px      hsla(0, 0%, 0%, 0.15),
+	            0 3px 1px -2px hsla(0, 0%, 0%, 0.2),
+	            0 1px 5px      hsla(0, 0%, 0%, 0.1);
+	outline: none;
+	opacity: 0.9;
+}
+
+.preview-container {
+	position: relative;
+	min-height: var(--main-height);
+	overflow-y: scroll;
+}
+
+.preview-container.empty::before {
+	position: absolute;
+	top: calc(50% - 0.5em);
+	right: 0;
+	left: 0;
+	bottom: calc(50% - 0.5em);
+	content: "No Results";
+	font-family: Consolas;
+	text-align: center;
+}
+
+.preview {
+	position: absolute;
+	width: 150px;
+}
+
+.preview > img {
+	width: 100%;
+}
+
+.preview > .options {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 4px;
+	left: 0;
+	padding: 0 15%;
+	background-color: hsla(0, 0%, 0%, 0.75);
+	opacity: 0;
+	transition: opacity 400ms;
+}
+
+.preview:hover > .options {
+	opacity: 1;
+}
+
+.preview > .options > a {
+	width: 30px;
+	height: 30px;
+}
