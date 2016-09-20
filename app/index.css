@@ -131,7 +131,7 @@ main {
 	position: absolute;
 	top: 0;
 	right: 0;
-	bottom: 4px;
+	bottom: 0.5px;
 	left: 0;
 	padding: 0 15%;
 	background-color: hsla(0, 0%, 0%, 0.5);

@@ -37,6 +37,7 @@ class Preview {
 			"div",
 			{
 				class: "preview",
+				style: `height:${this._height}px`,
 			},
 			this._image,
 			Element.create(
@@ -50,12 +51,7 @@ class Preview {
 		);
 	}
 
-	get height() {
-		if (!this._height)
-			this._height = this._element.offsetHeight;
-
-		return this._height;
-	}
+	get height() { return this._height; }
 
 	show(container, offset, side) {
 		this._copyLink.addEventListener("click", this._boundCopyClicked);
