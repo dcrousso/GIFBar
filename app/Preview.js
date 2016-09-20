@@ -62,15 +62,8 @@ class Preview {
 		this._image.addEventListener("error", this._boundImageError);
 
 		this._element.style.setProperty("top", `${offset}px`);
-
-		switch (side) {
-		case Preview.Side.Right:
-			this._element.style.setProperty("right", 0);
-			break;
-		case Preview.Side.Left:
-			this._element.style.setProperty("left", 0);
-			break;
-		}
+		this._element.classList.toggle("right", side === Preview.Side.Right);
+		this._element.classList.toggle("left", side === Preview.Side.Left);
 
 		container.appendChild(this._element);
 	}

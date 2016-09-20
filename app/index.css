@@ -85,6 +85,9 @@ main {
 .preview-container {
 	position: relative;
 	min-height: var(--main-height);
+	border-top-right-radius: var(--main-radius);
+	border-top-left-radius: var(--main-radius);
+	overflow-x: hidden;
 	overflow-y: scroll;
 }
 
@@ -102,6 +105,14 @@ main {
 .preview {
 	position: absolute;
 	width: 150px;
+}
+
+.preview.right {
+	right: 0;
+}
+
+.preview.left {
+	left: 0;
 }
 
 .preview > img {
