@@ -1,25 +1,25 @@
 "use strict";
 
-const previewContainer = Element.create(
+let apiResult = null;
+let previews = null;
+let columns = null;
+let lastScroll = null;
+
+let input = Element.create(
+	"input",
+	{
+		class: "search",
+		type: "search",
+		placeholder: "Search",
+	}
+);
+
+let previewContainer = Element.create(
 	"div",
 	{
 		class: "preview-container",
 	}
 );
-previewContainer.addEventListener("scroll", event => {
-	if (previewContainer.scrollTop - lastScroll < (previewContainer.scrollHeight - lastScroll) / 2)
-		return;
-
-	lastScroll = previewContainer.scrollHeight;
-
-	apiResult.next()
-	.then(addPreviews);
-});
-
-let apiResult = null;
-let previews = null;
-let columns = null;
-let lastScroll = null;
 
 function resetPreviews(keepAPIResult) {
 	if (previews)
@@ -35,32 +35,6 @@ function resetPreviews(keepAPIResult) {
 	};
 	lastScroll = 0;
 }
-
-const input = Element.create(
-	"input",
-	{
-		class: "search",
-		type: "search",
-		placeholder: "Search",
-	}
-);
-input.addEventListener("input", (event => {
-	let query = input.value.trim();
-	if (!query.length) {
-		getTrending();
-		return;
-	}
-
-	API.Search.request(query)
-	.then(search => {
-		resetPreviews();
-
-		apiResult = search;
-		addPreviews(apiResult.data);
-
-		previewContainer.scrollTop = 0;
-	});
-}).debounce(500));
 
 function addPreviews(data) {
 	previews = previews.concat(data.map(item => {
@@ -120,9 +94,37 @@ window.addEventListener("blur", event => {
 	resetPreviews(keepAPIResult);
 });
 
-const main = document.body.createChild(
+input.addEventListener("input", (event => {
+	let query = input.value.trim();
+	if (!query.length) {
+		getTrending();
+		return;
+	}
+
+	API.Search.request(query)
+	.then(search => {
+		resetPreviews();
+
+		apiResult = search;
+		addPreviews(apiResult.data);
+
+		previewContainer.scrollTop = 0;
+	});
+}).debounce(500));
+
+previewContainer.addEventListener("scroll", event => {
+	if (previewContainer.scrollTop - lastScroll < (previewContainer.scrollHeight - lastScroll) / 2)
+		return;
+
+	lastScroll = previewContainer.scrollHeight;
+
+	apiResult.next()
+	.then(addPreviews);
+});
+
+document.body.createChild(
 	"main",
-	{},
+	null,
 	input,
 	previewContainer
 );

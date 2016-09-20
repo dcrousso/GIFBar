@@ -3,13 +3,18 @@ const API = {
 };
 
 API._Result = class APIResult {
-	constructor(json) {
+	constructor(parameters, json) {
+		this._parameters = {
+			offset: json.pagination.offset || 0,
+		};
+
+		for (let key in parameters)
+			this._parameters[key] = parameters[key];
+
 		this._data = [];
-		this._offset = json.pagination.offset || 0;
+		this._fetching = false;
 
 		this._parseJSON(json);
-
-		this._fetching = false;
 	}
 
 	get data() { return this._data; }
@@ -20,10 +25,7 @@ API._Result = class APIResult {
 
 	next() {
 		if (!this._fetching) {
-			this._fetching = Request.make(this.endpoint, {
-				api_key: API._key,
-				offset: this._offset,
-			})
+			this._fetching = Request.make(this.endpoint, this._parameters)
 			.then(json => {
 				this._fetching = null;
 				return this._parseJSON(json);
@@ -51,7 +53,7 @@ API._Result = class APIResult {
 		}
 
 		if (json.pagination)
-			this._offset += json.pagination.count || 0;
+			this._parameters.offset += json.pagination.count || 0;
 
 		return data;
 	}
@@ -59,10 +61,12 @@ API._Result = class APIResult {
 
 API.Trending = class Trending extends API._Result {
 	static request() {
-		return Request.make(API.Trending.endpoint, {
+		let parameters = {
 			api_key: API._key,
-		})
-		.then(json => new API.Trending(json));
+		};
+
+		return Request.make(API.Trending.endpoint, parameters)
+		.then(json => new API.Trending(parameters, json));
 	}
 
 	get endpoint() {
@@ -73,11 +77,13 @@ API.Trending.endpoint = "http://api.giphy.com/v1/gifs/trending";
 
 API.Search = class Search extends API._Result {
 	static request(query) {
-		return Request.make(API.Search.endpoint, {
+		let parameters = {
 			api_key: API._key,
 			q: query,
-		})
-		.then(json => new API.Search(json));
+		};
+
+		return Request.make(API.Search.endpoint, parameters)
+		.then(json => new API.Search(parameters, json));
 	}
 
 	get endpoint() {
