@@ -95,6 +95,9 @@ window.addEventListener("blur", event => {
 });
 
 input.addEventListener("input", (event => {
+	if (event.metaKey || event.altKey)
+		return;
+
 	let query = input.value.trim();
 	if (!query.length) {
 		getTrending();
