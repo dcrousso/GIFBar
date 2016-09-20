@@ -1,5 +1,21 @@
 "use strict";
 
+const previewContainer = Element.create(
+	"div",
+	{
+		class: "preview-container",
+	}
+);
+previewContainer.addEventListener("scroll", event => {
+	if (previewContainer.scrollTop - lastScroll < (previewContainer.scrollHeight - lastScroll) / 2)
+		return;
+
+	lastScroll = previewContainer.scrollHeight;
+
+	apiResult.next()
+	.then(addPreviews);
+});
+
 let apiResult = null;
 let previews = null;
 let columns = null;
@@ -41,24 +57,10 @@ input.addEventListener("input", (event => {
 
 		apiResult = search;
 		addPreviews(apiResult.data);
+
+		previewContainer.scrollTop = 0;
 	});
 }).debounce(500));
-
-const previewContainer = Element.create(
-	"div",
-	{
-		class: "preview-container",
-	}
-);
-previewContainer.addEventListener("scroll", event => {
-	if (previewContainer.scrollTop - lastScroll < (previewContainer.scrollHeight - lastScroll) / 2)
-		return;
-
-	lastScroll = previewContainer.scrollHeight;
-
-	apiResult.next()
-	.then(addPreviews);
-});
 
 function addPreviews(data) {
 	previews = previews.concat(data.map(item => {
@@ -97,6 +99,8 @@ function getTrending() {
 
 		apiResult = trending;
 		addPreviews(apiResult.data);
+
+		previewContainer.scrollTop = 0;
 	});
 }
 
