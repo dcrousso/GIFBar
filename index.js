@@ -5,10 +5,14 @@ require("electron-dl")();
 
 electron.app.dock.hide();
 
-const size = {
-	arrow:   12,
-	width:  301,
-	height: 400,
+const Size = {
+	Arrow:   12,
+	Width:  301,
+	Height: 400,
+};
+
+const Shortcut = {
+	Toggle: "CommandOrControl+Shift+Space",
 };
 
 let tray = null;
@@ -23,10 +27,7 @@ function createTray() {
 		if (!browser)
 			createBrowser();
 
-		if (browser.isVisible())
-			hideBrowser();
-		else
-			showBrowser(bounds);
+		toggleBrowser(bounds);
 	});
 }
 
@@ -39,8 +40,8 @@ function createBrowser() {
 		frame:       false,
 		resizable:   false,
 		transparent: true,
-		width:       size.width,
-		height:      size.height + size.arrow,
+		width:       Size.Width,
+		height:      Size.Height + Size.Arrow,
 	}
 
 	browser = new electron.BrowserWindow(options);
@@ -53,7 +54,7 @@ function createBrowser() {
 }
 
 function showBrowser(bounds) {
-	browser.setPosition(parseInt(bounds.x - (size.width / 2) + (bounds.width / 2)), bounds.y + size.arrow + 14);
+	browser.setPosition(parseInt(bounds.x - (Size.Width / 2) + (bounds.width / 2)), bounds.y + Size.Arrow + 14);
 	browser.show();
 
 	tray.setHighlightMode("always");
@@ -63,9 +64,31 @@ function hideBrowser() {
 	browser.hide();
 
 	tray.setHighlightMode("never");
+
+	electron.Menu.sendActionToFirstResponder("hide:");
 }
+
+function toggleBrowser(bounds) {
+	if (browser.isVisible())
+		hideBrowser();
+	else
+		showBrowser(bounds || tray.getBounds());
+}
+
+electron.ipcMain.on("hide-browser", (event, data) => {
+	if (data)
+		hideBrowser();
+});
 
 electron.app.on("ready", event => {
 	createTray();
 	createBrowser();
+
+	electron.globalShortcut.register(Shortcut.Toggle, () => {
+		toggleBrowser();
+	});
+});
+
+electron.app.on("will-quit", event => {
+	electron.globalShortcut.unregister(Shortcut.Toggle);
 });
