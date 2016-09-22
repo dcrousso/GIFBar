@@ -1,5 +1,7 @@
 "use strict";
 
+const electron = require("electron");
+
 let apiResult = null;
 let previews = null;
 let columns = null;
@@ -92,6 +94,11 @@ window.addEventListener("focus", event => {
 window.addEventListener("blur", event => {
 	const keepAPIResult = true;
 	resetPreviews(keepAPIResult);
+});
+
+document.addEventListener("keydown", event => {
+	if (event.keyCode === 27) // Escape
+		electron.ipcRenderer.send("hide-browser", true);
 });
 
 input.addEventListener("input", (event => {
