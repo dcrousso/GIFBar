@@ -133,3 +133,5 @@ document.body.createChild(
 );
 
 getTrending();
+
+input.focus();
