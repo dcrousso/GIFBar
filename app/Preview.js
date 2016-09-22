@@ -1,7 +1,7 @@
 class Preview {
 	constructor({url, page, fixedWidth, height}) {
 		this._url = url;
-		this._height = height * (window.innerWidth / 2) / 200;
+		this._height = Math.floor(height * (window.innerWidth / 2) / 200);
 
 		this._boundCopyClicked = this._handleCopyClicked.bind(this);
 		this._boundImageError = this._handleImageError.bind(this);

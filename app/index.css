@@ -105,6 +105,7 @@ main {
 .preview {
 	position: absolute;
 	width: 150px;
+	overflow: hidden;
 }
 
 .preview.right {
