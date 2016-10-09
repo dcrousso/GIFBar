@@ -124,6 +124,10 @@ window.addEventListener("click", event => {
 });
 
 window.addEventListener("focus", event => {
+	Array.from(apiResults.keys()).forEach(result => {
+		apiResults.set(result, result.data);
+	});
+
 	addPreviews();
 
 	input.focus();
