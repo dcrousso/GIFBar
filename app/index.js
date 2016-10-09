@@ -32,14 +32,18 @@ function addPreviews() {
 
 	let results = Array.from(apiResults.keys());
 	let counter = Array(apiResults.size).fill(0);
+	let maximum = Array(apiResults.size).fill(API.limit);
+
 	(() => {
 		results.forEach((result, i) => {
-			if (counter[i] >= API.limit)
+			if (counter[i] >= maximum[i])
 				return;
 
 			let data = apiResults.get(result);
 			if (!data || !data.length)
 				return;
+
+			maximum[i] = data.length;
 
 			let side = null;
 			let offset = null;
@@ -67,7 +71,7 @@ function addPreviews() {
 			previews.push(preview);
 		});
 
-		if (Array.from(apiResults.values()).some(data => data && data.length) && counter.some(item => item < API.limit))
+		if (Array.from(apiResults.values()).some(data => data && data.length) && counter.some((item, i) => item < maximum[i]))
 			return true;
 
 		previewContainer.classList.toggle("empty", !previews.length);
@@ -130,8 +134,10 @@ window.addEventListener("blur", event => {
 });
 
 document.addEventListener("keydown", event => {
-	if (event.keyCode === 27) // Escape
+	if (event.keyCode === 27) { // Escape
+		event.preventDefault();
 		electron.ipcRenderer.send("hide-browser", true);
+	}
 });
 
 input.addEventListener("input", event => {
