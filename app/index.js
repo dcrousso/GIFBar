@@ -57,7 +57,6 @@ function addPreviews() {
 
 			let preview = new Preview(data[counter[i]++]);
 			preview.show(previewContainer, offset, side);
-			preview._element.classList.add(i);
 
 			switch (side) {
 			case Preview.Side.Right:
