@@ -4,10 +4,29 @@
 		<link rel="stylesheet" href="index.css">
 	</head>
 	<body>
+		<main>
+			<input class="search" type="search" placeholder="Search">
+			<div class="preview-container"></div>
+		</main>
+		<footer>
+			<div class="api-options">
+				<label class="gifs">
+					<input type="checkbox" name="GIF" checked>
+					GIFs
+				</label>
+				<label class="stickers">
+					<input type="checkbox" name="Sticker" checked>
+					Stickers
+				</label>
+			</div>
+			<a class="attribution" href="https://giphy.com/" target="_blank" title="Giphy">
+				<img src="../assets/Giphy.png">
+			</a>
+		</footer>
+
 		<script src="Utilities.js"></script>
 		<script src="API.js"></script>
 		<script src="Preview.js"></script>
 		<script src="index.js"></script>
-		<img class="attribution" src="../assets/Giphy.png">
 	</body>
 </html>

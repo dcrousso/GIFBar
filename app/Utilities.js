@@ -19,15 +19,6 @@ Object.defineProperty(String.prototype, "copy", {
 	},
 });
 
-Object.defineProperty(Array.prototype, "remove", {
-	value(value) {
-		for (let i = this.length - 1; i >= 0; --i) {
-			if (this[i] === value)
-				this.splice(i, 1);
-		}
-	}
-});
-
 const debounceSymbol = Symbol("function-debounce");
 Object.defineProperty(Function.prototype, "debounce", {
 	value(delay, context) {
@@ -37,6 +28,16 @@ Object.defineProperty(Function.prototype, "debounce", {
 					this.apply(context, args);
 			}, delay);
 		};
+	},
+});
+
+Object.defineProperty(Function.prototype, "loop", {
+	value(condition) {
+		let func = this;
+		(function wrapper() {
+			if (func())
+				setImmediate(wrapper);
+		})();
 	},
 });
 

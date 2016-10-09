@@ -2,33 +2,18 @@
 
 const electron = require("electron");
 
-let apiResult = null;
+let apiResults = new Map;
 let previews = null;
 let columns = null;
 let lastScroll = null;
 
-let input = Element.create(
-	"input",
-	{
-		class: "search",
-		type: "search",
-		placeholder: "Search",
-	}
-);
+const input = document.querySelector("input[type=\"search\"]");
+const previewContainer = document.querySelector(".preview-container");
+const checkboxes = Array.from(document.querySelectorAll(".api-options input[type=\"checkbox\"]"));
 
-let previewContainer = Element.create(
-	"div",
-	{
-		class: "preview-container",
-	}
-);
-
-function resetPreviews(keepAPIResult) {
+function resetPreviews() {
 	if (previews)
-		previews.forEach(preview => preview.hide(keepAPIResult));
-
-	if (!keepAPIResult)
-		apiResult = null;
+		previews.forEach(preview => preview.hide());
 
 	previews = [];
 	columns = {
@@ -38,45 +23,95 @@ function resetPreviews(keepAPIResult) {
 	lastScroll = 0;
 }
 
-function addPreviews(data) {
-	previews = previews.concat(data.map(item => {
-		let side = null;
-		let offset = null;
-		if (columns.right < columns.left) {
-			side = Preview.Side.Right;
-			offset = columns.right++;
-		} else {
-			side = Preview.Side.Left;
-			offset = columns.left++;
-		}
+let adding = false;
+function addPreviews() {
+	if (adding)
+		return;
 
-		let preview = new Preview(item);
-		preview.show(previewContainer, offset, side);
+	adding = true;
 
-		switch (side) {
-		case Preview.Side.Right:
-			columns.right += preview.height;
-			break;
-		case Preview.Side.Left:
-			columns.left += preview.height;
-			break;
-		}
+	let results = Array.from(apiResults.keys());
+	let counter = Array(apiResults.size).fill(0);
+	(() => {
+		results.forEach((result, i) => {
+			if (counter[i] >= API.limit)
+				return;
 
-		return preview;
-	}));
+			let data = apiResults.get(result);
+			if (!data || !data.length)
+				return;
 
-	previewContainer.classList.toggle("empty", !previews.length);
+			let side = null;
+			let offset = null;
+			if (columns.right < columns.left) {
+				side = Preview.Side.Right;
+				offset = columns.right++;
+			} else {
+				side = Preview.Side.Left;
+				offset = columns.left++;
+			}
+
+			let preview = new Preview(data[counter[i]++]);
+			preview.show(previewContainer, offset, side);
+			preview._element.classList.add(i);
+
+			switch (side) {
+			case Preview.Side.Right:
+				columns.right += preview.height;
+				break;
+			case Preview.Side.Left:
+				columns.left += preview.height;
+				break;
+			}
+
+			previews.push(preview);
+		});
+
+		if (Array.from(apiResults.values()).some(data => data && data.length) && counter.some(item => item < API.limit))
+			return true;
+
+		previewContainer.classList.toggle("empty", !previews.length);
+		adding = false;
+		return false;
+	}).loop();
 }
 
-function getTrending() {
-	API.Trending.request()
-	.then(trending => {
+function getAPIResults() {
+	apiResults.clear();
+
+	let type = API.Trending;
+	let parameters = {};
+
+	let query = input.value.trim();
+	if (query.length) {
+		type = API.Search;
+		parameters.q = query;
+	}
+
+	let promises = Object.keys(type)
+	.map(key => {
+		let checkbox = checkboxes.find(element => element.getAttribute("name") === key);
+		if (!checkbox || !checkbox.checked)
+			return;
+
+		let result = new API.Result(type[key], parameters);
+		apiResults.set(result, null);
+		return result.next();
+	})
+	.filter(item => !!item);
+
+	Promise.race(promises)
+	.then(() => {
 		resetPreviews();
-
-		apiResult = trending;
-		addPreviews(apiResult.data);
-
 		previewContainer.scrollTop = 0;
+
+		promises.forEach(promise => {
+			promise
+			.then(({result, data}) => {
+				apiResults.set(result, data);
+				addPreviews();
+			});
+		});
 	});
 }
 
@@ -85,15 +120,13 @@ window.addEventListener("click", event => {
 });
 
 window.addEventListener("focus", event => {
-	if (apiResult)
-		addPreviews(apiResult.data);
+	addPreviews();
 
 	input.focus();
 });
 
 window.addEventListener("blur", event => {
-	const keepAPIResult = true;
-	resetPreviews(keepAPIResult);
+	resetPreviews();
 });
 
 document.addEventListener("keydown", event => {
@@ -101,26 +134,12 @@ document.addEventListener("keydown", event => {
 		electron.ipcRenderer.send("hide-browser", true);
 });
 
-input.addEventListener("input", (event => {
+input.addEventListener("input", event => {
 	if (event.metaKey || event.altKey)
 		return;
 
-	let query = input.value.trim();
-	if (!query.length) {
-		getTrending();
-		return;
-	}
-
-	API.Search.request(query)
-	.then(search => {
-		resetPreviews();
-
-		apiResult = search;
-		addPreviews(apiResult.data);
-
-		previewContainer.scrollTop = 0;
-	});
-}).debounce(500));
+	getAPIResults.debounce(500)();
+});
 
 previewContainer.addEventListener("scroll", event => {
 	if (previewContainer.scrollTop - lastScroll < (previewContainer.scrollHeight - lastScroll) / 2)
@@ -128,17 +147,24 @@ previewContainer.addEventListener("scroll", event => {
 
 	lastScroll = previewContainer.scrollHeight;
 
-	apiResult.next()
-	.then(addPreviews);
+	for (let result of apiResults.keys()) {
+		result.next()
+		.then(({data}) => {
+			apiResults.set(result, data);
+			addPreviews();
+		});
+	}
 });
 
-document.body.createChild(
-	"main",
-	null,
-	input,
-	previewContainer
-);
+checkboxes.forEach(checkbox => {
+	checkbox.addEventListener("change", event => {
+		if (checkboxes.every(element => !element.checked))
+			checkboxes.find(element => element !== checkbox).checked = true;
 
-getTrending();
+		getAPIResults();
+	})
+})
+
+getAPIResults();
 
 input.focus();

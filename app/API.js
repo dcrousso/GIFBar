@@ -1,41 +1,40 @@
 const API = {
 	_key: "dc6zaTOxFJmzC",
+	limit: 25,
+	Trending : {
+		GIF:     "http://api.giphy.com/v1/gifs/trending",
+		Sticker: "http://api.giphy.com/v1/stickers/trending",
+	},
+	Search: {
+		GIF:     "http://api.giphy.com/v1/gifs/search",
+		Sticker: "http://api.giphy.com/v1/stickers/search",
+	},
 };
 
-API._Result = class APIResult {
-	constructor(parameters, json) {
-		this._parameters = {
-			offset: json.pagination.offset || 0,
-		};
+API.Result = class {
+	constructor(endpoint, parameters) {
+		this._endpoint = endpoint;
 
-		for (let key in parameters)
-			this._parameters[key] = parameters[key];
+		this._parameters = parameters;
+		this._parameters.api_key = API._key;
+		this._parameters.limit = API.limit;
+		this._parameters.offset = 0;
 
 		this._data = [];
 		this._fetching = false;
-
-		this._parseJSON(json);
 	}
 
 	get data() { return this._data; }
 
-	get endpoint() {
-		return "";
-	}
-
 	next() {
 		if (!this._fetching) {
-			this._fetching = Request.make(this.endpoint, this._parameters)
+			this._fetching = Request.make(this._endpoint, this._parameters)
 			.then(json => {
 				this._fetching = null;
 				return this._parseJSON(json);
 			});
 		}
 		return this._fetching;
-	}
-
-	map(callback) {
-		return this._data.map(callback);
 	}
 
 	_parseJSON(json) {
@@ -55,39 +54,9 @@ API._Result = class APIResult {
 		if (json.pagination)
 			this._parameters.offset += json.pagination.count || 0;
 
-		return data;
+		return {
+			result: this,
+			data,
+		};
 	}
 };
-
-API.Trending = class Trending extends API._Result {
-	static request() {
-		let parameters = {
-			api_key: API._key,
-		};
-
-		return Request.make(API.Trending.endpoint, parameters)
-		.then(json => new API.Trending(parameters, json));
-	}
-
-	get endpoint() {
-		return API.Trending.endpoint;
-	}
-}
-API.Trending.endpoint = "http://api.giphy.com/v1/gifs/trending";
-
-API.Search = class Search extends API._Result {
-	static request(query) {
-		let parameters = {
-			api_key: API._key,
-			q: query,
-		};
-
-		return Request.make(API.Search.endpoint, parameters)
-		.then(json => new API.Search(parameters, json));
-	}
-
-	get endpoint() {
-		return API.Search.endpoint;
-	}
-}
-API.Search.endpoint = "http://api.giphy.com/v1/gifs/search";

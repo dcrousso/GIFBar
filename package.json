@@ -1,7 +1,7 @@
 {
 	"name": "GIFBar",
 	"productName": "GIFBar",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description": "A system tray icon that helps you find the perfect GIF",
 	"scripts": {
 		"start": "electron .",
