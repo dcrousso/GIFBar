@@ -1,9 +1,9 @@
-const electron = require("electron");
+const Electron = require("electron");
 
 require("electron-debug")();
 require("electron-dl")();
 
-electron.app.dock.hide();
+Electron.app.dock.hide();
 
 const Size = {
 	Arrow:   12,
@@ -22,7 +22,7 @@ function createTray() {
 	if (tray)
 		return;
 
-	tray = new electron.Tray(`${__dirname}/assets/Tray.png`);
+	tray = new Electron.Tray(`${__dirname}/assets/Tray.png`);
 	tray.on("click", (event, bounds) => {
 		if (!browser)
 			createBrowser();
@@ -44,11 +44,11 @@ function createBrowser() {
 		height:      Size.Height + Size.Arrow,
 	}
 
-	browser = new electron.BrowserWindow(options);
+	browser = new Electron.BrowserWindow(options);
 	browser.on("blur", hideBrowser);
 	browser.webContents.on("new-window", (event, url) => {
 		event.preventDefault();
-		electron.shell.openExternal(url);
+		Electron.shell.openExternal(url);
 	});
 	browser.loadURL(`file://${__dirname}/app/index.html`);
 }
@@ -65,7 +65,7 @@ function hideBrowser() {
 
 	tray.setHighlightMode("never");
 
-	electron.Menu.sendActionToFirstResponder("hide:");
+	Electron.Menu.sendActionToFirstResponder("hide:");
 }
 
 function toggleBrowser(bounds) {
@@ -75,20 +75,20 @@ function toggleBrowser(bounds) {
 		showBrowser(bounds || tray.getBounds());
 }
 
-electron.ipcMain.on("hide-browser", (event, data) => {
+Electron.ipcMain.on("hide-browser", (event, data) => {
 	if (data)
 		hideBrowser();
 });
 
-electron.app.on("ready", event => {
+Electron.app.on("ready", event => {
 	createTray();
 	createBrowser();
 
-	electron.globalShortcut.register(Shortcut.Toggle, () => {
+	Electron.globalShortcut.register(Shortcut.Toggle, () => {
 		toggleBrowser();
 	});
 });
 
-electron.app.on("will-quit", event => {
-	electron.globalShortcut.unregister(Shortcut.Toggle);
+Electron.app.on("will-quit", event => {
+	Electron.globalShortcut.unregister(Shortcut.Toggle);
 });

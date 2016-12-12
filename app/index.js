@@ -1,7 +1,5 @@
 "use strict";
 
-const electron = require("electron");
-
 let apiResults = new Map;
 let previews = null;
 let columns = null;
@@ -139,7 +137,7 @@ window.addEventListener("blur", event => {
 document.addEventListener("keydown", event => {
 	if (event.keyCode === 27) { // Escape
 		event.preventDefault();
-		electron.ipcRenderer.send("hide-browser", true);
+		Electron.ipcRenderer.send("hide-browser", true);
 	}
 });
 

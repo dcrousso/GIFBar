@@ -1,3 +1,5 @@
+"use strict";
+
 const API = {
 	_key: "dc6zaTOxFJmzC",
 	limit: 25,

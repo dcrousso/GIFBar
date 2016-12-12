@@ -1,3 +1,5 @@
+"use strict";
+
 Object.defineProperty(String.prototype, "copy", {
 	value() {
 		let textarea = document.body.createChild(

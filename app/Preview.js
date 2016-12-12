@@ -1,3 +1,5 @@
+"use strict";
+
 class Preview {
 	constructor({url, page, fixedWidth, height}) {
 		this._url = url;
