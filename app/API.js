@@ -4,12 +4,12 @@ const API = {
 	_key: "dc6zaTOxFJmzC",
 	limit: 25,
 	Trending : {
-		GIF:     "http://api.giphy.com/v1/gifs/trending",
-		Sticker: "http://api.giphy.com/v1/stickers/trending",
+		GIFs:     "http://api.giphy.com/v1/gifs/trending",
+		Stickers: "http://api.giphy.com/v1/stickers/trending",
 	},
 	Search: {
-		GIF:     "http://api.giphy.com/v1/gifs/search",
-		Sticker: "http://api.giphy.com/v1/stickers/search",
+		GIFs:     "http://api.giphy.com/v1/gifs/search",
+		Stickers: "http://api.giphy.com/v1/stickers/search",
 	},
 };
 

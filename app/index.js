@@ -1,5 +1,10 @@
 "use strict";
 
+let settings = {
+	GIFs:     true,
+	Stickers: true,
+};
+
 let apiResults = new Map;
 let previews = null;
 let columns = null;
@@ -7,7 +12,7 @@ let lastScroll = null;
 
 const input = document.querySelector("input[type=\"search\"]");
 const previewContainer = document.querySelector(".preview-container");
-const checkboxes = Array.from(document.querySelectorAll(".api-options input[type=\"checkbox\"]"));
+const settingsButton = document.querySelector(".settings");
 
 function resetPreviews() {
 	if (previews)
@@ -16,7 +21,7 @@ function resetPreviews() {
 	previews = [];
 	columns = {
 		right: 24,
-		left: 24,
+		left:  24,
 	};
 	lastScroll = 0;
 }
@@ -91,8 +96,7 @@ function getAPIResults() {
 
 	let promises = Object.keys(type)
 	.map(key => {
-		let checkbox = checkboxes.find(element => element.getAttribute("name") === key);
-		if (!checkbox || !checkbox.checked)
+		if (!settings[key] || !settings[key].checked)
 			return;
 
 		let result = new API.Result(type[key], parameters);
@@ -163,14 +167,33 @@ previewContainer.addEventListener("scroll", event => {
 	}
 });
 
-checkboxes.forEach(checkbox => {
-	checkbox.addEventListener("change", event => {
-		if (checkboxes.every(element => !element.checked))
-			checkboxes.find(element => element !== checkbox).checked = true;
+let settingsMenu = new Electron.remote.Menu();
+Object.keys(settings).forEach((key, i, keys) => {
+	let menuItem = new Electron.remote.MenuItem({
+		label: key,
+		type: "checkbox",
+		checked: settings[key],
+		click() {
+			if (keys.every(item => !settings[item].checked))
+				settings[keys.find(item => item !== key)].checked = true;
 
-		getAPIResults();
-	})
-})
+			getAPIResults();
+		},
+	});
+	settingsMenu.append(menuItem);
+
+	settings[key] = menuItem;
+});
+settingsMenu.append(new Electron.remote.MenuItem({
+	type: "separator",
+}));
+settingsMenu.append(new Electron.remote.MenuItem({
+	role: "quit",
+}));
+
+settingsButton.addEventListener("click", event => {
+	settingsMenu.popup(Electron.remote.getCurrentWindow());
+});
 
 getAPIResults();
 
