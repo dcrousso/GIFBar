@@ -81,8 +81,81 @@ Electron.ipcMain.on("hide-browser", (event, data) => {
 });
 
 Electron.app.on("ready", event => {
+	Electron.Menu.setApplicationMenu(Electron.Menu.buildFromTemplate([
+		{
+			label: Electron.app.getName(),
+			submenu: [
+				{
+					role: "about",
+				},
+				{
+					type: "separator",
+				},
+				{
+					role: "services",
+					submenu: []
+				},
+				{
+					type: "separator",
+				},
+				{
+					role: "quit",
+				},
+			],
+		},
+		{
+			label: "Edit",
+			submenu: [
+				{
+					role: "undo",
+				},
+				{
+					role: "redo",
+				},
+				{
+					type: "separator",
+				},
+				{
+					role: "copy",
+				},
+				{
+					role: "cut",
+				},
+				{
+					role: "paste",
+				},
+				{
+					role: "pasteandmatchstyle",
+				},
+				{
+					role: "delete",
+				},
+				{
+					role: "selectall",
+				},
+			],
+		},
+		{
+			role: "help",
+			submenu: [
+				{
+					label: `${Electron.app.getName()} Website`,
+					click() {
+						Electron.shell.openExternal(`https://github.com/dcrousso/${Electron.app.getName()}#readme`);
+					},
+				},
+				{
+					label: "Report an Issue...",
+					click() {
+						const body = `\n\n${Electron.app.getName()} ${Electron.app.getVersion()}\n${process.platform} ${process.arch} ${os.release()}`;
+						Electron.shell.openExternal(`https://github.com/dcrousso/${Electron.app.getName()}/issues/new?body=${encodeURIComponent(body)}`);
+					},
+				},
+			],
+		},
+	]));
+
 	createTray();
-	createBrowser();
 
 	Electron.globalShortcut.register(Shortcut.Toggle, () => {
 		toggleBrowser();
