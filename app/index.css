@@ -23,7 +23,7 @@ body::before {
 	content: "";
 	border-left: var(--main-offset) solid transparent;
 	border-right: var(--main-offset) solid transparent;
-	border-bottom: var(--main-offset) solid hsl(0, 0%, 92.5%);
+	border-bottom: var(--main-offset) solid white;
 }
 
 main {
@@ -125,13 +125,15 @@ footer {
 
 .preview-container.empty::before {
 	position: absolute;
-	top: calc(50% - 0.5em);
+	top: 24px;
 	right: 0;
 	left: 0;
-	bottom: calc(50% - 0.5em);
-	content: "No Results";
+	margin-top: calc(50% - 100px + 2em);
+	padding-top: calc(100px + 1em);
 	font-family: Consolas;
 	text-align: center;
+	content: "No Results";
+	background: url("../assets/no-results.gif") center/contain no-repeat;
 }
 
 .preview {
