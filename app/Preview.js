@@ -75,7 +75,10 @@ class Preview {
 
 	_handleCopyClicked(event) {
 		event.preventDefault();
+
 		this._url.copy();
+
+		Electron.ipcRenderer.send("hide-browser", true);
 	}
 
 	_handleImageError(event) {
