@@ -69,6 +69,9 @@ function hideBrowser() {
 }
 
 function toggleBrowser(bounds) {
+	if (!browser)
+		createBrowser();
+
 	if (browser.isVisible())
 		hideBrowser();
 	else
